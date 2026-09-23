@@ -1,16 +1,12 @@
-const cors = require('cors');
+const app = require('./app');
+const config = require("./config/env")
+const connectDatabase = require('./config/database');
 
-const express = require('express');
-const dotenv = require('dotenv');
+const startServer = async() => {
+    await connectDatabase();
+    app.listen(config.port, () => {
+        console.log(`Server running on port ${config.port} on ${config.nodeEnv} mode`);
+    });
+};
 
-dotenv.config();
-const app = express();
-
-app.use(cors({
-    origin: ['http://localhost:5000', 'http://127.0.0.1:5000']
-}))
-
-
-app.listen(5000, () => {
-    console.log('The Server is running on port 5000');
-});
+startServer();
