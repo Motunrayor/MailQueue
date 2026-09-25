@@ -93,9 +93,9 @@ User monitors campaign progress
 MailQueue will remain an **MVP**. The focus is on delivering a complete working product that demonstrates frontend/backend integration, database operations, authentication, CRUD, and — most importantly — **background job processing**.
 
 ## Team Members
-Oluwasegun Omotosh
-Olagunju Quadri
-Obinna Ekwealor
-Oseni Usman
-Motunrayo Fatumo
-Okeke Peter
+-Oluwasegun Omotosh
+-Olagunju Quadri
+-Obinna Ekwealor
+-Oseni Usman
+-Motunrayo Fatumo
+-Okeke Peter
