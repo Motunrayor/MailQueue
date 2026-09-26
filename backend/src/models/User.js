@@ -32,16 +32,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
     },
 
-    phone_no1: {
+    phone_no: {
       type: String,
       trim: true,
     },
-
-    phone_no2: {
-      type: String,
-      trim: true,
-    },
-
     address: {
       type: String,
       trim: true,
@@ -103,21 +97,16 @@ const UserSchema = new mongoose.Schema(
       type: Date,
     },
 
-    email_verified: {
-      type: Boolean,
-      default: false,
-    },
-
     onboardingstatus: {
       type: String,
-      enum: [ "not_started","in_progress","submitted","under_review", "completed", ],
-      default: "not_started",
+      enum: [ "in_progress", "completed", ],
+      default: "in_progress",
     },
 
     accountStatus: {
       type: String,
-      enum: [ "pending", "active","suspended", "blocked", ],
-      default: "pending",
+      enum: [ "active","suspended", "blocked", ],
+      default: "active",
     },
     role: {
       type: String,
