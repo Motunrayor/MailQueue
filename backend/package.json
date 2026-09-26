@@ -2,10 +2,10 @@
   "name": "mailqueue-backend",
   "version": "1.0.0",
   "description": "Backend service for MailQueue",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon src/server.js",
     "test": "node --test"
   },
   "keywords": [],
