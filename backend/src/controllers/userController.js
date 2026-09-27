@@ -68,16 +68,35 @@ exports.logout = async (req, res, next) => {
     }
 }
 
-exports.changePassword = async (req, res, next) => { 
+exports.checkPassword = async (req, res, next) => { 
     try {
-        const { currentPassword, newPassword } = req.body;
+        const { password } = req.body;
         const user = await User.findById(req.user.id);
 
-        if (!currentPassword || !newPassword) {
-            return res.status(400).json({ message: "Current and new passwords are required" });
+        if (!password) {
+            return res.status(400).json({ message: "Password is required" });
         }
-        if (currentPassword != user.password) { 
-            return res.status(400).json({ message: "Current password is incorrect" });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Password is incorrect" });
+        }
+        res.status(200).json({ message: "Password is correct" });
+    }catch (error) {
+        next(error);
+    }
+}
+exports.changePassword = async (req, res, next) => { 
+    try {
+        const { newPassword, confirmPassword } = req.body;
+        const user = await User.findById(req.user.id);
+
+        if (!newPassword || !confirmPassword) {
+            return res.status(400).json({ message: "New and confirm passwords are required" });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ message: "New and confirm passwords do not match" });
         }
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;

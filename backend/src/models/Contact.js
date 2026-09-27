@@ -8,18 +8,7 @@ const ContactSchema = new mongoose.Schema(
       required: true,
     },
 
-    firstname: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    middlename: {
-      type: String,
-      trim: true,
-    },
-
-    lastname: {
+    full_name: {
       type: String,
       required: true,
       trim: true,
@@ -30,37 +19,6 @@ const ContactSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
-    },
-
-    phone_no: {
-      type: String,
-      trim: true,
-    },
-
-    company: {
-      type: String,
-      trim: true,
-    },
-
-    job_title: {
-      type: String,
-      trim: true,
-    },
-
-    address: {
-      type: String,
-      trim: true,
-    },
-
-    notes: {
-      type: String,
-      trim: true,
-    },
-
-    status: {
-      type: String,
-      enum: ["active", "unsubscribed"],
-      default: "active",
     },
   },
   {
