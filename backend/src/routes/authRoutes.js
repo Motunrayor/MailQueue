@@ -13,6 +13,6 @@ router.post("/verify-email", verifyEmail);
 router.post("/register", verifyEmail, register);
 router.post("/login", login);
 router.post("/forget-password", requestChangePassword);
-router.post("/change-password", changePassword);
+router.patch("/change-password", changePassword);
 
 module.exports = router;

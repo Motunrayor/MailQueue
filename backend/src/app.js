@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json()) //parse incoming request into JSON
 
 //import other route handler here eg authROutes and errorhandler
 app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 
 
