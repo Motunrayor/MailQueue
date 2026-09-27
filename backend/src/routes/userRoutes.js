@@ -8,5 +8,6 @@ router.get("/profile/:id", authToken, getUserProfile);
 router.put("/profile/:id", authToken, updateUserProfile);
 router.delete("/profile/:id", authToken, deleteUserProfile);
 router.post("/logout", authToken, logout);
+router.post("/change-password", authToken, changePassword);
 
 module.exports = router;

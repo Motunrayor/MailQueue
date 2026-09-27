@@ -67,3 +67,26 @@ exports.logout = async (req, res, next) => {
         next(error);
     }
 }
+
+exports.changePassword = async (req, res, next) => { 
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user.id);
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: "Current and new passwords are required" });
+        }
+        if (currentPassword != user.password) { 
+            return res.status(400).json({ message: "Current password is incorrect" });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+        res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+    } catch (error) {
+        next(error);
+    }
+}
