@@ -1,0 +1,10 @@
+Generate via Node.js in Terminal
+Run this one-liner directly in your Code Editor terminal to generate a secure 256-bit cryptographically random string:
+
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+
+
+Output example:
+a9f8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8
+
+copy the generated and put it in your .env file
