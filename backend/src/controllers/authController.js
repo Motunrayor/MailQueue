@@ -5,7 +5,7 @@ const Mail = require("../mail/mail");
 const { sendOtpEmail } = require("../services/emailService");
 
 const signToken = (user) =>
-  jwt.sign({ id: user._id.toString(), email: user.email }, process.env.JWT_SECRET, { expiresIn: "1d" });
+  jwt.sign({ id: user._id.toString(), email: user.email, role: user.role}, process.env.JWT_SECRET, { expiresIn: "1d" });
 
 exports.verifyEmail = async (req, res, next) => {
   try {
@@ -75,6 +75,18 @@ exports.login = async (req, res, next) => {
       user,
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+exports.getMe = async(req, res, next) => {
+  try{
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user){
+      return res.status(404).json({success: false, message: "User not found"});
+    }
+    res.status(200).json({success: true, user});
+  }catch (error){
     next(error);
   }
 };
