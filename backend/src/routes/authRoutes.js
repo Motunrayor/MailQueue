@@ -8,15 +8,14 @@ const {
   requestChangePassword,
 } = require("../controllers/authController");
 
-const { authToken } = require("../middleware/authmiddleware");
-
+const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 router.post("/verify-email", verifyEmail);
 router.post("/register", verifyEmail, register);
 router.post("/login", login);
-router.get("/me", authToken, getMe);
+router.get("/me", protect, getMe);
 router.post("/forget-password", requestChangePassword);
 router.patch("/change-password", changePassword);
 

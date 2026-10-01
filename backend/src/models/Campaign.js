@@ -1,89 +1,37 @@
 const mongoose = require("mongoose");
 
-const CampaignSchema = new mongoose.Schema(
+const campaignSchema = new mongoose.Schema(
   {
-    // User who created the campaign
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-
-    // Internal name of the campaign
-    campaignName: {
+    name: {
       type: String,
       required: true,
-      trim: true,
     },
-
-    // Email subject
     subject: {
       type: String,
       required: true,
-      trim: true,
     },
-
-    // Email body/content
-    content: {
+    message: {
       type: String,
       required: true,
     },
-
-    // Contacts selected for this campaign
     recipients: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Contact",
       },
     ],
-
-    // Overall campaign status
     status: {
       type: String,
-      enum: [
-        "draft",
-        "queued",
-        "processing",
-        "completed",
-        "failed",
-      ],
+      enum: ["draft", "scheduled", "sent"],
       default: "draft",
     },
-
-    // Campaign statistics
-    stats: {
-      total: {
-        type: Number,
-        default: 0,
-      },
-      processed: {
-        type: Number,
-        default: 0,
-      },
-      successful: {
-        type: Number,
-        default: 0,
-      },
-      failed: {
-        type: Number,
-        default: 0,
-      },
-    },
-
-    // Important campaign timestamps
-    queuedAt: {
-      type: Date,
-    },
-    startedAt: {
-      type: Date,
-    },
-    completedAt: {
-      type: Date,
-    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model("Campaign", CampaignSchema);
+module.exports = mongoose.model("Campaign", campaignSchema);
