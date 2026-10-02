@@ -7,31 +7,58 @@ const campaignSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     name: {
       type: String,
       required: true,
+      trim: true,
     },
+
     subject: {
       type: String,
       required: true,
+      trim: true,
     },
+
     message: {
       type: String,
       required: true,
     },
+
     recipients: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Contact",
       },
     ],
+
     status: {
       type: String,
-      enum: ["draft", "scheduled", "sent"],
+      enum: ["draft", "queued", "processing", "completed", "failed"],
       default: "draft",
     },
+
+    totalRecipients: {
+      type: Number,
+      default: 0,
+    },
+
+    processedCount: {
+      type: Number,
+      default: 0,
+    },
+
+    successCount: {
+      type: Number,
+      default: 0,
+    },
+
+    failedCount: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Campaign", campaignSchema);
