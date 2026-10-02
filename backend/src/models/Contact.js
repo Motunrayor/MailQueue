@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const contactSchema = new mongoose.Schema(
   {
     user: {
@@ -7,7 +9,7 @@ const contactSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    name: {
+    full_name: {
       type: String,
       required: true,
     },
@@ -16,9 +18,12 @@ const contactSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
+      match: [EMAIL_PATTERN, "Please provide a valid email address"],
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
+
+contactSchema.index({ user: 1, email: 1 }, { unique: true });
 
 module.exports = mongoose.model("Contact", contactSchema);
