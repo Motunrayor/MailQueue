@@ -1,35 +1,30 @@
 const mongoose = require("mongoose");
 
-const CampaignSchema = new mongoose.Schema(
+const campaignSchema = new mongoose.Schema(
   {
-    // User who created the campaign
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    // Internal name of the campaign
-    campaignName: {
+    name: {
       type: String,
       required: true,
       trim: true,
     },
 
-    // Email subject
     subject: {
       type: String,
       required: true,
       trim: true,
     },
 
-    // Email body/content
-    content: {
+    message: {
       type: String,
       required: true,
     },
 
-    // Contacts selected for this campaign
     recipients: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -37,48 +32,30 @@ const CampaignSchema = new mongoose.Schema(
       },
     ],
 
-    // Overall campaign status
     status: {
       type: String,
-      enum: [
-        "draft",
-        "queued",
-        "processing",
-        "completed",
-        "failed",
-      ],
+      enum: ["draft", "queued", "processing", "completed", "failed"],
       default: "draft",
     },
 
-    // Campaign statistics
-    stats: {
-      total: {
-        type: Number,
-        default: 0,
-      },
-      processed: {
-        type: Number,
-        default: 0,
-      },
-      successful: {
-        type: Number,
-        default: 0,
-      },
-      failed: {
-        type: Number,
-        default: 0,
-      },
+    totalRecipients: {
+      type: Number,
+      default: 0,
     },
 
-    // Important campaign timestamps
-    queuedAt: {
-      type: Date,
+    processedCount: {
+      type: Number,
+      default: 0,
     },
-    startedAt: {
-      type: Date,
+
+    successCount: {
+      type: Number,
+      default: 0,
     },
-    completedAt: {
-      type: Date,
+
+    failedCount: {
+      type: Number,
+      default: 0,
     },
   },
   {
@@ -86,4 +63,4 @@ const CampaignSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Campaign", CampaignSchema);
+module.exports = mongoose.model("Campaign", campaignSchema);

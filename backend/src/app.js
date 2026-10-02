@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+
+require("dotenv").config()
+
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");

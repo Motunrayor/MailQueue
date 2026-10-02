@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="x-apple-disable-message-reformatting" />
+		<title>{{subject}}</title>
+	</head>
+	<body style="margin: 0; padding: 0; background-color: #f4f7fb; font-family: Arial, Helvetica, sans-serif; color: #1f2937;">
+		<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f7fb;">
+			<tr>
+				<td align="center" style="padding: 32px 16px;">
+					<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; overflow: hidden;">
+						<!-- Campaign header -->
+						<tr>
+							<td style="padding: 28px 32px; background-color: #2563eb; text-align: center;">
+								<img src="{{logoUrl}}" alt="{{companyName}}" width="140" style="display: inline-block; max-width: 140px; height: auto; border: 0;" />
+							</td>
+						</tr>
+
+						<!-- Campaign content -->
+						<tr>
+							<td style="padding: 40px 32px;">
+								<p style="margin: 0 0 12px; font-size: 14px; color: #6b7280;">{{preheader}}</p>
+								<h1 style="margin: 0 0 20px; font-size: 30px; line-height: 1.2; color: #111827;">{{heading}}</h1>
+								<div style="font-size: 16px; line-height: 1.6; color: #4b5563;">
+									{{content}}
+								</div>
+								<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top: 28px;">
+									<tr>
+										<td style="border-radius: 6px; background-color: #2563eb;">
+											<a href="{{ctaUrl}}" style="display: inline-block; padding: 14px 24px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none;">{{ctaText}}</a>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<!-- Campaign footer -->
+						<tr>
+							<td style="padding: 24px 32px; background-color: #f9fafb; text-align: center; font-size: 12px; line-height: 1.6; color: #6b7280;">
+								<p style="margin: 0 0 8px;">{{companyName}} · {{companyAddress}}</p>
+								<p style="margin: 0;"><a href="{{unsubscribeUrl}}" style="color: #2563eb;">Unsubscribe</a> · <a href="{{preferencesUrl}}" style="color: #2563eb;">Email preferences</a></p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

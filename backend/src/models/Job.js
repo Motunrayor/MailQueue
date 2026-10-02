@@ -1,10 +1,16 @@
 const mongoose = require("mongoose");
 
-const EmailJobSchema = new mongoose.Schema(
+const jobSchema = new mongoose.Schema(
   {
     campaign: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Campaign",
+      required: true,
+    },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
 
@@ -23,12 +29,7 @@ const EmailJobSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: [
-        "pending",
-        "processing",
-        "sent",
-        "failed",
-      ],
+      enum: ["pending", "processing", "completed", "failed"],
       default: "pending",
     },
 
@@ -37,12 +38,19 @@ const EmailJobSchema = new mongoose.Schema(
       default: 0,
     },
 
-    lastError: {
+    maxAttempts: {
+      type: Number,
+      default: 3,
+    },
+
+    error: {
       type: String,
+      default: null,
     },
 
     processedAt: {
       type: Date,
+      default: null,
     },
   },
   {
@@ -50,4 +58,4 @@ const EmailJobSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("EmailJob", EmailJobSchema);
+module.exports = mongoose.model("Job", jobSchema);

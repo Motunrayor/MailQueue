@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "worker": "node src/worker/emailWorker.js",
     "test": "node --test"
   },
   "keywords": [],

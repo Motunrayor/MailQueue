@@ -39,3 +39,18 @@ exports.sendOtpEmail = async ({ email, otp, userName }) => {
     throw error;
   }
 };
+
+exports.sendCampaignEmail = async ({ email, subject, message }) => {
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: email,
+      subject,
+      text: message,
+    });
+
+    return info;
+  } catch (error) {
+    throw error;
+  }
+};
