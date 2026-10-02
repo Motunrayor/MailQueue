@@ -7,6 +7,7 @@ const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.use(express.json()) //parse incoming request into JSON
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/contacts", contactRoutes);
+app.use("/api/admin", adminRoutes);
+
 
 
 
