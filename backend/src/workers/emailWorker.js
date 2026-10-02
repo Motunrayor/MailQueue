@@ -1,3 +1,8 @@
+const path = require("path");
+require("dotenv").config({
+  path: path.resolve(__dirname, "../../.env"),
+});
+
 const connectDatabase = require("../config/database");
 const Job = require("../models/Job");
 const Notification = require("../models/Notification");
@@ -52,12 +57,12 @@ const processJob = async (job) => {
     );
 
     // Send email
-    await sendCampaignEmail({
-      email: claimedJob.recipientEmail,
-      subject: campaign.subject,
-      message: campaign.message,
-    });
-
+await sendCampaignEmail({
+  email: claimedJob.recipientEmail,
+  subject: campaign.subject,
+  message: campaign.message,
+  campaignName: campaign.name,
+});
     // Successful job
     await Job.findByIdAndUpdate(claimedJob._id, {
       $set: {

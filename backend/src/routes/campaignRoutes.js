@@ -6,13 +6,16 @@ const {
   getCampaignById,
   updateCampaign,
   deleteCampaign,
+  sendCampaign,
+  getCampaignNotifications,
 } = require("../controllers/campaignController");
-
 const router = express.Router();
 
 router.use(protect);
 
 router.route("/").get(getCampaigns).post(createCampaign);
+router.post("/:id/send", sendCampaign);
+router.get("/:id/notifications", getCampaignNotifications);
 
 router
   .route("/:id")

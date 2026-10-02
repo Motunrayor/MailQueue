@@ -40,13 +40,39 @@ exports.sendOtpEmail = async ({ email, otp, userName }) => {
   }
 };
 
-exports.sendCampaignEmail = async ({ email, subject, message }) => {
+exports.sendCampaignEmail = async ({
+  email,
+  subject,
+  message,
+  campaignName,
+}) => {
   try {
+    const filePath = path.join(
+      __dirname,
+      "..",
+      "mail",
+      "campaignMail.html"
+    );
+
+    let html = fs.readFileSync(filePath, "utf8");
+
+    // Replace campaign placeholders
+    html = html.replace(/{{subject}}/g, subject || "");
+    html = html.replace(
+      /{{heading}}/g,
+      campaignName || "MailQueue Campaign"
+    );
+    html = html.replace(/{{preheader}}/g, subject || "");
+
+    // message contains the HTML-formatted campaign content
+    html = html.replace(/{{content}}/g, message || "");
+
     const info = await transporter.sendMail({
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: email,
       subject,
-      text: message,
+      html,
+      text: message.replace(/<[^>]*>/g, ""),
     });
 
     return info;

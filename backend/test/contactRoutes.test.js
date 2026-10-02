@@ -15,5 +15,5 @@ test("GET /api/contacts requires authentication", async (t) => {
   const body = await response.json();
 
   assert.equal(response.status, 401);
-  assert.equal(body.message, "Access denied. No token provided.");
+  assert.equal(body.message, "Not authorized, token missing.");
 });
