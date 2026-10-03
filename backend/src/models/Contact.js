@@ -22,7 +22,7 @@ const contactSchema = new mongoose.Schema(
       match: [EMAIL_PATTERN, "Please provide a valid email address"],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 contactSchema.index({ user: 1, email: 1 }, { unique: true });

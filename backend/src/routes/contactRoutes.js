@@ -1,18 +1,22 @@
 const express = require("express");
-const { authToken } = require("../middleware/authMiddleware");
-
+const { protect } = require("../middleware/authMiddleware");
 const {
   createContact,
   getContacts,
-  getContact,
+  getContactById,
   updateContact,
   deleteContact,
 } = require("../controllers/contactController");
 
 const router = express.Router();
 
-router.use(authToken);
-router.route("/").post(createContact).get(getContacts);
-router.route("/:id").get(getContact).patch(updateContact).delete(deleteContact);
+router.use(protect);
+
+router.route("/").get(getContacts).post(createContact);
+router
+  .route("/:id")
+  .get(getContactById)
+  .patch(updateContact)
+  .delete(deleteContact);
 
 module.exports = router;
