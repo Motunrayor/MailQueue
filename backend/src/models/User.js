@@ -89,12 +89,20 @@ const UserSchema = new mongoose.Schema(
       },
     },
 
-    otp_code: {
+    passwordResetOtpHash: {
       type: String,
+      select: false,
     },
 
-    expiredotp_time: {
+    passwordResetOtpExpiresAt: {
       type: Date,
+      select: false,
+    },
+
+    passwordResetOtpAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
     },
 
     onboardingstatus: {
@@ -120,4 +128,3 @@ const UserSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("User", UserSchema);
-

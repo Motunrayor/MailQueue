@@ -64,11 +64,39 @@ exports.createContact = async (req, res, next) => {
 
 exports.getContacts = async (req, res, next) => {
   try {
-    const contacts = await Contact.find({ user: req.user.id }).sort({
+    const search = typeof req.query.search === "string"
+      ? req.query.search.trim()
+      : "";
+
+    const filter = {
+      user: req.user.id,
+    };
+
+    if (search) {
+      filter.$or = [
+        {
+          full_name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    const contacts = await Contact.find(filter).sort({
       createdAt: -1,
     });
 
-    return res.status(200).json({ success: true, contacts });
+    return res.status(200).json({
+      success: true,
+      contacts,
+    });
   } catch (error) {
     return next(error);
   }
