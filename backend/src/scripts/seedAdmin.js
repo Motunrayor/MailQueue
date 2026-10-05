@@ -66,3 +66,4 @@ seedAdmin()
   .finally(async () => {
     await mongoose.disconnect();
   });
+  
