@@ -12,20 +12,67 @@ Instead of sending all emails during the user's request, MailQueue places email 
 
 MailQueue has two roles:
 
+## Users
+
+MailQueue has two roles:
+
 ### User
-- Register and login
-- Manage contacts
-- Create and manage campaigns
-- Select recipients
-- Send/queue campaigns
-- Monitor campaign progress
-- View successful and failed email deliveries
+
+* Register and login
+* Manage contacts
+* Create and manage campaigns
+* Select recipients
+* Send/queue campaigns
+* Monitor campaign progress
+* View successful and failed email deliveries
 
 ### Admin
-- Login
-- View registered users
-- View campaigns
-- View basic application/campaign statistics
+
+* Login through the same authentication system
+* Access a dedicated admin dashboard
+* View registered users
+* Search and paginate users
+* View application and campaign statistics
+* Monitor campaign and background job statuses
+
+## Admin Access
+
+Admin functionality is protected by role-based authorization. Only authenticated users with the `admin` role can access the admin dashboard and admin API endpoints.
+
+### Admin Frontend Routes
+
+* `/admin` — Admin dashboard
+* `/admin/users` — User management
+
+### Admin API Endpoints
+
+* `GET /api/admin/stats` — Application, campaign, and job statistics
+* `GET /api/admin/users` — Registered users with search, filtering, and pagination
+* `GET /api/admin/campaigns` — Campaign information for administrative use
+
+### Creating an Admin
+
+An admin account can be created or promoted using the backend admin seed script.
+
+The following environment variables are required:
+
+```env
+ADMIN_EMAIL=your-admin-email
+ADMIN_PASSWORD=your-admin-password
+ADMIN_FIRSTNAME=Admin
+ADMIN_LASTNAME=User
+```
+
+The seed script creates/promotes the account with:
+
+```text
+role: admin
+accountStatus: active
+onboardingstatus: completed
+```
+
+Admin API routes require authentication and verify that the authenticated account has the `admin` role.
+
 
 ---
 

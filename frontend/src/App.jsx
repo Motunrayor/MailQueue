@@ -19,6 +19,7 @@ import CampaignDetails from "./pages/CampaignDetails";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Users from "./pages/admin/Users";
+import AdminCampaigns from "./pages/admin/AdminCampaigns";
 
 const App = () => {
   return (
@@ -63,6 +64,7 @@ const App = () => {
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/campaigns" element={<AdminCampaigns />} />
           </Route>
 
           {/* Unknown route */}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import DashboardLayout from "../../components/DashboardLayout";
+import AdminLayout from "../../components/AdminLayout";
 import { getAdminStats } from "../../services/adminService";
 
 export default function AdminDashboard() {
@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <DashboardLayout>
+    <AdminLayout>
       <div className="p-6 md:p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-800">
@@ -183,7 +183,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </AdminLayout>
   );
 }
 

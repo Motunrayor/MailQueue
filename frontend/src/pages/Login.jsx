@@ -40,12 +40,16 @@ export default function Login() {
     try {
       setLoading(true);
 
-      await login({
-        email,
-        password: formData.password,
-      });
+     const response = await login({
+  email,
+  password: formData.password,
+});
 
-      navigate("/dashboard", { replace: true });
+if (response.user?.role === "admin") {
+  navigate("/admin", { replace: true });
+} else {
+  navigate("/dashboard", { replace: true });
+}
     } catch (err) {
       setError(
         err.response?.data?.message ||
