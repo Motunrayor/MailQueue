@@ -16,14 +16,18 @@ export default function Contacts() {
   const [showForm, setShowForm] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const limit = 10;
 
   const fetchContacts = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const data = await getContacts(search);
+      const data = await getContacts({ search, page, limit });
       setContacts(data.contacts || []);
+      setPagination(data.pagination || null);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -36,7 +40,7 @@ export default function Contacts() {
 
   useEffect(() => {
     fetchContacts();
-  }, [search]);
+  }, [search, page]);
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
@@ -107,7 +111,10 @@ export default function Contacts() {
             type="text"
             placeholder="Search contacts..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
@@ -223,6 +230,31 @@ export default function Contacts() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => current - 1)}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Previous
+              </button>
+
+              <span className="text-sm text-gray-500">
+                Page {pagination.page} of {pagination.totalPages}
+              </span>
+
+              <button
+                type="button"
+                disabled={page >= pagination.totalPages}
+                onClick={() => setPage((current) => current + 1)}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Next
+              </button>
             </div>
           )}
         </div>

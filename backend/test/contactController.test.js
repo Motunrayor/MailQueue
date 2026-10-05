@@ -112,19 +112,27 @@ test("getContacts lists only contacts belonging to the authenticated user", asyn
   t.mock.method(Contact, "find", (receivedFilter) => {
     filter = receivedFilter;
     return {
-      sort: async (receivedSort) => {
+      sort(receivedSort) {
         sort = receivedSort;
+        return this;
+      },
+      skip() {
+        return this;
+      },
+      limit: async () => {
         return contacts;
       },
     };
   });
+  t.mock.method(Contact, "countDocuments", async () => contacts.length);
   const res = response();
 
   await getContacts(request(), res, assert.fail);
 
   assert.deepEqual(filter, { user: ownerId });
   assert.deepEqual(sort, { createdAt: -1 });
-  assert.deepEqual(res.body, { success: true, contacts });
+  assert.equal(res.body.success, true);
+  assert.deepEqual(res.body.contacts, contacts);
 });
 
 test("getContacts forwards database errors", async (t) => {
@@ -132,6 +140,7 @@ test("getContacts forwards database errors", async (t) => {
   t.mock.method(Contact, "find", () => {
     throw expected;
   });
+  t.mock.method(Contact, "countDocuments", async () => 0);
   let received;
 
   await getContacts(request(), response(), (error) => {

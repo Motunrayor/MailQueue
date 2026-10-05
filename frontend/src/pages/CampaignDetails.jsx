@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import DashboardLayout from "../components/DashboardLayout";
 import StatusBadge from "../components/StatusBadge";
@@ -12,7 +12,6 @@ import {
 
 export default function CampaignDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [campaign, setCampaign] = useState(null);
   const [notifications, setNotifications] = useState([]);

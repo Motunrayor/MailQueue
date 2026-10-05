@@ -1,8 +1,8 @@
 import api from "./api";
 
 // Get all campaigns
-export const getCampaigns = async () => {
-  const { data } = await api.get("/campaigns");
+export const getCampaigns = async (params = {}) => {
+  const { data } = await api.get("/campaigns", { params });
   return data;
 };
 

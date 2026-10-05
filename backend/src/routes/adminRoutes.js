@@ -1,5 +1,5 @@
 const express = require("express");
-const { authToken } = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 const { requireAdmin } = require("../middleware/roleMiddleware");
 
 const {
@@ -11,7 +11,7 @@ const {
 const router = express.Router();
 
 // All admin endpoints require authentication and admin authorization.
-router.use(authToken, requireAdmin);
+router.use(protect, requireAdmin);
 
 router.get("/users", getUsers);
 router.get("/campaigns", getCampaigns);

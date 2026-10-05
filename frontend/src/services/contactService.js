@@ -1,10 +1,24 @@
 import api from "./api";
 
-export const getContacts = async (search = "") => {
+export const getContacts = async (options = {}) => {
   const params = {};
+  const search =
+    typeof options === "string" ? options : options.search || "";
+  const page =
+    typeof options === "object" && options.page ? options.page : undefined;
+  const limit =
+    typeof options === "object" && options.limit ? options.limit : undefined;
 
   if (search.trim()) {
     params.search = search.trim();
+  }
+
+  if (page) {
+    params.page = page;
+  }
+
+  if (limit) {
+    params.limit = limit;
   }
 
   const { data } = await api.get("/contacts", { params });

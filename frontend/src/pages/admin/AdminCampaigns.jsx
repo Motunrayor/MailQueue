@@ -151,10 +151,10 @@ export default function AdminCampaigns() {
                       </td>
 
                       <td className="px-4 py-4 text-gray-600">
-                        {campaign.owner
-                          ? `${campaign.owner.firstname || ""} ${
-                              campaign.owner.lastname || ""
-                            }`.trim() || campaign.owner.email
+                        {campaign.user
+                          ? `${campaign.user.firstname || ""} ${
+                              campaign.user.lastname || ""
+                            }`.trim() || campaign.user.email
                           : "—"}
                       </td>
 
@@ -190,7 +190,7 @@ export default function AdminCampaigns() {
             </div>
           )}
 
-          {pagination && pagination.pages > 1 && (
+          {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
               <button
                 type="button"
@@ -202,12 +202,12 @@ export default function AdminCampaigns() {
               </button>
 
               <span className="text-sm text-gray-500">
-                Page {pagination.page} of {pagination.pages}
+                Page {pagination.page} of {pagination.totalPages}
               </span>
 
               <button
                 type="button"
-                disabled={page >= pagination.pages}
+                disabled={page >= pagination.totalPages}
                 onClick={() => setPage((current) => current + 1)}
                 className="px-4 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
               >

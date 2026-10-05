@@ -24,11 +24,23 @@ export default function Sidebar({ isOpen, onNavigate }) {
 
   // Add admin links only for admin users
   if (user?.role === "admin") {
-    navItems.push({
-      name: "Users",
-      path: "/admin/users",
-      icon: "⚙",
-    });
+    navItems.push(
+      {
+        name: "Admin",
+        path: "/admin",
+        icon: "⚙",
+      },
+      {
+        name: "Admin Users",
+        path: "/admin/users",
+        icon: "👤",
+      },
+      {
+        name: "Admin Campaigns",
+        path: "/admin/campaigns",
+        icon: "✉",
+      }
+    );
   }
 
   return (

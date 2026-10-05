@@ -3,16 +3,76 @@ const Contact = require("../models/Contact");
 const Job = require("../models/Job");
 const Notification = require("../models/Notification");
 
+const VALID_CAMPAIGN_STATUSES = new Set([
+  "draft",
+  "queued",
+  "processing",
+  "completed",
+  "failed",
+]);
+
+const EDITABLE_FIELDS = new Set(["name", "subject", "message", "recipients"]);
+
+const escapeRegex = (value) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const getPagination = (query = {}) => {
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 10));
+
+  return {
+    page,
+    limit,
+    skip: (page - 1) * limit,
+  };
+};
+
+const normalizeString = (value) =>
+  typeof value === "string" ? value.trim() : "";
+
+const validateRecipientIds = async (recipientIds, userId) => {
+  if (!Array.isArray(recipientIds) || recipientIds.length === 0) {
+    return {
+      error: "At least one recipient is required",
+    };
+  }
+
+  const uniqueRecipientIds = [...new Set(recipientIds.map((id) => String(id)))];
+
+  if (uniqueRecipientIds.some((id) => !id.match(/^[0-9a-fA-F]{24}$/))) {
+    return {
+      error: "One or more campaign recipients are invalid",
+    };
+  }
+
+  const contacts = await Contact.find({
+    _id: { $in: uniqueRecipientIds },
+    user: userId,
+  }).select("_id");
+
+  if (contacts.length !== uniqueRecipientIds.length) {
+    return {
+      error: "One or more campaign recipients are invalid",
+    };
+  }
+
+  return {
+    recipients: uniqueRecipientIds,
+  };
+};
 
 exports.createCampaign = async (req, res, next) => {
   try {
     const { name, subject, message, recipients } = req.body;
+    const cleanName = normalizeString(name);
+    const cleanSubject = normalizeString(subject);
+    const cleanMessage = normalizeString(message);
 
     if (
-      !name ||
-      !subject ||
-      !message ||
-      !recipients ||
+      !cleanName ||
+      !cleanSubject ||
+      !cleanMessage ||
+      !Array.isArray(recipients) ||
       recipients.length === 0
     ) {
       return res.status(400).json({
@@ -22,12 +82,21 @@ exports.createCampaign = async (req, res, next) => {
       });
     }
 
+    const recipientValidation = await validateRecipientIds(recipients, req.user._id);
+    if (recipientValidation.error) {
+      return res.status(400).json({
+        success: false,
+        message: recipientValidation.error,
+      });
+    }
+
     const campaign = await Campaign.create({
       user: req.user._id,
-      name,
-      subject,
-      message,
-      recipients,
+      name: cleanName,
+      subject: cleanSubject,
+      message: cleanMessage,
+      recipients: recipientValidation.recipients,
+      totalRecipients: recipientValidation.recipients.length,
     });
 
     res.status(201).json({
@@ -41,8 +110,46 @@ exports.createCampaign = async (req, res, next) => {
 
 exports.getCampaigns = async (req, res, next) => {
   try {
-    const campaigns = await Campaign.find({ user: req.user._id });
-    res.status(200).json({ success: true, data: campaigns });
+    const query = req.query || {};
+    const { page, limit, skip } = getPagination(query);
+    const filter = { user: req.user._id };
+
+    if (query.status) {
+      if (!VALID_CAMPAIGN_STATUSES.has(query.status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid campaign status",
+        });
+      }
+      filter.status = query.status;
+    }
+
+    if (typeof query.search === "string" && query.search.trim()) {
+      const search = escapeRegex(query.search.trim());
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { subject: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const [campaigns, total] = await Promise.all([
+      Campaign.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Campaign.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: campaigns,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -53,7 +160,7 @@ exports.getCampaignById = async (req, res, next) => {
     const campaign = await Campaign.findOne({
       _id: req.params.id,
       user: req.user._id,
-    });
+    }).populate("recipients", "full_name email");
 
     if (!campaign) {
       return res
@@ -80,10 +187,75 @@ exports.updateCampaign = async (req, res, next) => {
         .json({ success: false, message: "Campaign not found" });
     }
 
-    const updatedCampaign = await Campaign.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true },
+    if (campaign.status !== "draft") {
+      return res.status(400).json({
+        success: false,
+        message: "Only draft campaigns can be updated",
+      });
+    }
+
+    const fields = Object.keys(req.body || {});
+    if (
+      fields.length === 0 ||
+      fields.some((field) => !EDITABLE_FIELDS.has(field))
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Only name, subject, message, and recipients can be updated",
+      });
+    }
+
+    const update = {};
+
+    if (fields.includes("name")) {
+      update.name = normalizeString(req.body.name);
+      if (!update.name) {
+        return res.status(400).json({
+          success: false,
+          message: "Campaign name cannot be empty",
+        });
+      }
+    }
+
+    if (fields.includes("subject")) {
+      update.subject = normalizeString(req.body.subject);
+      if (!update.subject) {
+        return res.status(400).json({
+          success: false,
+          message: "Subject cannot be empty",
+        });
+      }
+    }
+
+    if (fields.includes("message")) {
+      update.message = normalizeString(req.body.message);
+      if (!update.message) {
+        return res.status(400).json({
+          success: false,
+          message: "Message cannot be empty",
+        });
+      }
+    }
+
+    if (fields.includes("recipients")) {
+      const recipientValidation = await validateRecipientIds(
+        req.body.recipients,
+        req.user._id
+      );
+      if (recipientValidation.error) {
+        return res.status(400).json({
+          success: false,
+          message: recipientValidation.error,
+        });
+      }
+      update.recipients = recipientValidation.recipients;
+      update.totalRecipients = recipientValidation.recipients.length;
+    }
+
+    const updatedCampaign = await Campaign.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
+      update,
+      { new: true, runValidators: true },
     );
 
     res.status(200).json({ success: true, data: updatedCampaign });
@@ -105,7 +277,14 @@ exports.deleteCampaign = async (req, res, next) => {
         .json({ success: false, message: "Campaign not found" });
     }
 
-    await Campaign.findByIdAndDelete(req.params.id);
+    if (campaign.status !== "draft") {
+      return res.status(400).json({
+        success: false,
+        message: "Only draft campaigns can be deleted",
+      });
+    }
+
+    await Campaign.findOneAndDelete({ _id: req.params.id, user: req.user._id });
 
     res.status(200).json({
       success: true,

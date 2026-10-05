@@ -11,17 +11,28 @@ import {
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState([]);
+  const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const loadCampaigns = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const data = await getCampaigns();
+      const data = await getCampaigns({
+        page,
+        limit,
+        search: search.trim(),
+        status,
+      });
 
       setCampaigns(data.data || []);
+      setPagination(data.pagination || null);
     } catch (error) {
       setError(
         error.response?.data?.message ||
@@ -34,7 +45,13 @@ export default function Campaigns() {
 
   useEffect(() => {
     loadCampaigns();
-  }, []);
+  }, [page, status]);
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    setPage(1);
+    loadCampaigns();
+  };
 
   const handleDelete = async (campaign) => {
     if (campaign.status !== "draft") return;
@@ -99,6 +116,42 @@ export default function Campaigns() {
             {error}
           </div>
         )}
+
+        <form
+          onSubmit={handleSearch}
+          className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col md:flex-row gap-3"
+        >
+          <input
+            type="text"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search campaigns..."
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          <select
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value);
+              setPage(1);
+            }}
+            className="border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">All statuses</option>
+            <option value="draft">Draft</option>
+            <option value="queued">Queued</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+          </select>
+
+          <button
+            type="submit"
+            className="bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg font-medium"
+          >
+            Search
+          </button>
+        </form>
 
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {loading ? (
@@ -228,6 +281,31 @@ export default function Campaigns() {
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => current - 1)}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Previous
+              </button>
+
+              <span className="text-sm text-gray-500">
+                Page {pagination.page} of {pagination.totalPages}
+              </span>
+
+              <button
+                type="button"
+                disabled={page >= pagination.totalPages}
+                onClick={() => setPage((current) => current + 1)}
+                className="px-4 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+              >
+                Next
+              </button>
             </div>
           )}
         </div>

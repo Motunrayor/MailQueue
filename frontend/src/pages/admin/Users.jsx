@@ -170,7 +170,7 @@ export default function Users() {
             </div>
           )}
 
-          {pagination && pagination.pages > 1 && (
+          {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
               <button
                 type="button"
@@ -182,12 +182,12 @@ export default function Users() {
               </button>
 
               <span className="text-sm text-gray-500">
-                Page {pagination.page} of {pagination.pages}
+                Page {pagination.page} of {pagination.totalPages}
               </span>
 
               <button
                 type="button"
-                disabled={page >= pagination.pages}
+                disabled={page >= pagination.totalPages}
                 onClick={() => setPage((current) => current + 1)}
                 className="px-4 py-2 text-sm rounded-lg border border-gray-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
               >
@@ -200,4 +200,3 @@ export default function Users() {
     </AdminLayout>
   );
 }
-
