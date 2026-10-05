@@ -1,0 +1,268 @@
+openapi: 3.0.3
+info:
+  title: MailQueue API
+  version: 1.0.0
+  description: REST API for the MailQueue MVP.
+servers:
+  - url: http://localhost:5000/api
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+paths:
+  /auth/register:
+    post:
+      security: []
+      summary: Register a user
+      responses:
+        "201":
+          description: User registered
+        "400":
+          description: Validation error
+  /auth/login:
+    post:
+      security: []
+      summary: Login and receive a JWT
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Invalid credentials
+  /auth/me:
+    get:
+      summary: Get the authenticated user
+      responses:
+        "200":
+          description: Current user returned
+        "401":
+          description: Missing or invalid token
+  /contacts:
+    post:
+      summary: Create a contact
+      responses:
+        "201":
+          description: Contact created
+        "400":
+          description: Invalid name or email
+        "409":
+          description: Duplicate contact email for this user
+    get:
+      summary: List contacts owned by the authenticated user
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Contacts returned
+  /contacts/{id}:
+    get:
+      summary: Get one owned contact
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contact returned
+        "400":
+          description: Invalid contact ID
+        "404":
+          description: Contact not found
+    patch:
+      summary: Update an owned contact
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contact updated
+        "400":
+          description: Invalid update
+        "404":
+          description: Contact not found
+        "409":
+          description: Duplicate contact email for this user
+    delete:
+      summary: Delete an owned contact
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contact deleted
+        "400":
+          description: Invalid contact ID
+        "404":
+          description: Contact not found
+  /campaigns:
+    post:
+      summary: Create a draft campaign with owned contact recipients
+      responses:
+        "201":
+          description: Campaign created
+        "400":
+          description: Invalid campaign data or recipients
+    get:
+      summary: List owned campaigns
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [draft, queued, processing, completed, failed]
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Campaigns returned
+  /campaigns/{id}:
+    get:
+      summary: Get an owned campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign returned
+        "404":
+          description: Campaign not found
+    patch:
+      summary: Update an owned draft campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign updated
+        "400":
+          description: Invalid update or non-draft campaign
+        "404":
+          description: Campaign not found
+    delete:
+      summary: Delete an owned draft campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign deleted
+        "400":
+          description: Campaign is not draft
+        "404":
+          description: Campaign not found
+  /campaigns/{id}/send:
+    post:
+      summary: Queue one email job per recipient for a draft campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign queued
+        "400":
+          description: Campaign cannot be queued
+        "404":
+          description: Campaign not found
+  /campaigns/{id}/notifications:
+    get:
+      summary: Get delivery results for an owned campaign
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Notifications returned
+        "404":
+          description: Campaign not found
+  /admin/users:
+    get:
+      summary: List users for admins
+      responses:
+        "200":
+          description: Users returned
+        "401":
+          description: Missing or invalid token
+        "403":
+          description: Admin access required
+  /admin/campaigns:
+    get:
+      summary: List campaigns for admins
+      responses:
+        "200":
+          description: Campaigns returned
+        "401":
+          description: Missing or invalid token
+        "403":
+          description: Admin access required
+  /admin/stats:
+    get:
+      summary: Get admin statistics
+      responses:
+        "200":
+          description: Statistics returned
+        "401":
+          description: Missing or invalid token
+        "403":
+          description: Admin access required

@@ -64,17 +64,58 @@ exports.createContact = async (req, res, next) => {
 
 exports.getContacts = async (req, res, next) => {
   try {
-    const contacts = await Contact.find({ user: req.user.id }).sort({
-      createdAt: -1,
-    });
+    const query = req.query || {};
+    const page = Math.max(1, parseInt(query.page, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(query.limit, 10) || 100));
+    const skip = (page - 1) * limit;
+    const search = typeof query.search === "string"
+      ? query.search.trim()
+      : "";
 
-    return res.status(200).json({ success: true, contacts });
+    const filter = {
+      user: req.user.id,
+    };
+
+    if (search) {
+      filter.$or = [
+        {
+          full_name: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+        {
+          email: {
+            $regex: search,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    const [contacts, total] = await Promise.all([
+      Contact.find(filter).sort({
+        createdAt: -1,
+      }).skip(skip).limit(limit),
+      Contact.countDocuments(filter),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      contacts,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     return next(error);
   }
 };
 
-exports.getContact = async (req, res, next) => {
+const getContact = async (req, res, next) => {
   try {
     if (!isValidId(req.params.id)) {
       return res.status(400).json({
@@ -100,6 +141,9 @@ exports.getContact = async (req, res, next) => {
     return next(error);
   }
 };
+
+exports.getContact = getContact;
+exports.getContactById = getContact;
 
 exports.updateContact = async (req, res, next) => {
   try {

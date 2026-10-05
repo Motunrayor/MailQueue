@@ -1,32 +1,34 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/AdminLayout";
-import { getAdminUsers } from "../../services/adminService";
+import { getAdminCampaigns } from "../../services/adminService";
 
-export default function Users() {
-  const [users, setUsers] = useState([]);
+export default function AdminCampaigns() {
+  const [campaigns, setCampaigns] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
 
-  const loadUsers = async () => {
+  const loadCampaigns = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await getAdminUsers({
+      const response = await getAdminCampaigns({
         page,
         limit: 10,
         search: search.trim(),
+        status,
       });
 
-      setUsers(response.data || []);
+      setCampaigns(response.data || []);
       setPagination(response.pagination);
     } catch (error) {
       setError(
         error.response?.data?.message ||
-          "Unable to load users."
+          "Unable to load campaigns."
       );
     } finally {
       setLoading(false);
@@ -34,40 +36,64 @@ export default function Users() {
   };
 
   useEffect(() => {
-    loadUsers();
+    loadCampaigns();
   }, [page]);
 
   const handleSearch = (event) => {
     event.preventDefault();
     setPage(1);
-    loadUsers();
+    loadCampaigns();
   };
+
+  const handleStatusChange = (event) => {
+    setStatus(event.target.value);
+    setPage(1);
+  };
+
+  useEffect(() => {
+    if (page === 1) {
+      loadCampaigns();
+    }
+  }, [status]);
 
   return (
     <AdminLayout>
       <div className="p-6 md:p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-800">
-            Users
+            Campaigns
           </h1>
 
           <p className="text-gray-500 mt-1">
-            View registered MailQueue users.
+            View campaigns created by MailQueue users.
           </p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-6">
           <form
             onSubmit={handleSearch}
-            className="flex flex-col sm:flex-row gap-3 mb-6"
+            className="flex flex-col md:flex-row gap-3 mb-6"
           >
             <input
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search by name or email..."
+              placeholder="Search by campaign name..."
               className="flex-1 border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-500"
             />
+
+            <select
+              value={status}
+              onChange={handleStatusChange}
+              className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">All statuses</option>
+              <option value="draft">Draft</option>
+              <option value="queued">Queued</option>
+              <option value="processing">Processing</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+            </select>
 
             <button
               type="submit"
@@ -85,11 +111,11 @@ export default function Users() {
 
           {loading ? (
             <div className="p-8 text-center text-gray-500">
-              Loading users...
+              Loading campaigns...
             </div>
-          ) : users.length === 0 ? (
+          ) : campaigns.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
-              No users found.
+              No campaigns found.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -97,15 +123,11 @@ export default function Users() {
                 <thead>
                   <tr className="border-b border-gray-100 text-left">
                     <th className="px-4 py-3 font-semibold text-gray-600">
-                      Name
+                      Campaign
                     </th>
 
                     <th className="px-4 py-3 font-semibold text-gray-600">
-                      Email
-                    </th>
-
-                    <th className="px-4 py-3 font-semibold text-gray-600">
-                      Role
+                      Owner
                     </th>
 
                     <th className="px-4 py-3 font-semibold text-gray-600">
@@ -113,54 +135,52 @@ export default function Users() {
                     </th>
 
                     <th className="px-4 py-3 font-semibold text-gray-600">
-                      Joined
+                      Created
                     </th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {users.map((user) => (
+                  {campaigns.map((campaign) => (
                     <tr
-                      key={user._id}
+                      key={campaign._id}
                       className="border-b border-gray-50 hover:bg-gray-50"
                     >
                       <td className="px-4 py-4 font-medium text-gray-800">
-                        {user.firstname} {user.lastname}
+                        {campaign.name || "Untitled Campaign"}
                       </td>
 
                       <td className="px-4 py-4 text-gray-600">
-                        {user.email}
+                        {campaign.user
+                          ? `${campaign.user.firstname || ""} ${
+                              campaign.user.lastname || ""
+                            }`.trim() || campaign.user.email
+                          : "—"}
                       </td>
 
                       <td className="px-4 py-4">
                         <span
                           className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
-                            user.role === "admin"
-                              ? "bg-purple-100 text-purple-700"
-                              : "bg-blue-100 text-blue-700"
-                          }`}
-                        >
-                          {user.role}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-4">
-                        <span
-                          className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${
-                            user.accountStatus === "active"
+                            campaign.status === "completed"
                               ? "bg-green-100 text-green-700"
-                              : user.accountStatus === "suspended"
+                              : campaign.status === "failed"
+                              ? "bg-red-100 text-red-700"
+                              : campaign.status === "processing"
                               ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
+                              : campaign.status === "queued"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-700"
                           }`}
                         >
-                          {user.accountStatus}
+                          {campaign.status || "unknown"}
                         </span>
                       </td>
 
                       <td className="px-4 py-4 text-gray-500">
-                        {user.createdAt
-                          ? new Date(user.createdAt).toLocaleDateString()
+                        {campaign.createdAt
+                          ? new Date(
+                              campaign.createdAt
+                            ).toLocaleDateString()
                           : "—"}
                       </td>
                     </tr>

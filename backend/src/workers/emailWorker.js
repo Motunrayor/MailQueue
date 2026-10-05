@@ -1,8 +1,28 @@
+const path = require("path");
+require("dotenv").config({
+  path: path.resolve(__dirname, "../../.env"),
+});
+
 const connectDatabase = require("../config/database");
 const Job = require("../models/Job");
 const Notification = require("../models/Notification");
 const Campaign = require("../models/Campaign");
-const { sendCampaignEmail } = require("../services/emailService");
+const emailService = require("../services/emailService");
+
+const finalizeCampaignIfComplete = async (campaignId) => {
+  const activeJobs = await Job.countDocuments({
+    campaign: campaignId,
+    status: { $in: ["pending", "processing"] },
+  });
+
+  if (activeJobs === 0) {
+    await Campaign.findByIdAndUpdate(campaignId, {
+      $set: {
+        status: "completed",
+      },
+    });
+  }
+};
 
 const processJob = async (job) => {
   try {
@@ -26,6 +46,12 @@ const processJob = async (job) => {
     if (!claimedJob) {
       return;
     }
+
+    await Campaign.findByIdAndUpdate(claimedJob.campaign, {
+      $set: {
+        status: "processing",
+      },
+    });
 
     console.log(`Processing job ${claimedJob._id}`);
 
@@ -52,12 +78,12 @@ const processJob = async (job) => {
     );
 
     // Send email
-    await sendCampaignEmail({
+    await emailService.sendCampaignEmail({
       email: claimedJob.recipientEmail,
       subject: campaign.subject,
       message: campaign.message,
+      campaignName: campaign.name,
     });
-
     // Successful job
     await Job.findByIdAndUpdate(claimedJob._id, {
       $set: {
@@ -90,6 +116,8 @@ const processJob = async (job) => {
         successCount: 1,
       },
     });
+
+    await finalizeCampaignIfComplete(claimedJob.campaign);
 
     console.log(`Job ${claimedJob._id} completed successfully`);
   } catch (error) {
@@ -135,6 +163,8 @@ const processJob = async (job) => {
           failedCount: 1,
         },
       });
+
+      await finalizeCampaignIfComplete(failedJob.campaign);
 
       console.log(`Job ${failedJob._id} permanently failed`);
     } else {
@@ -183,4 +213,12 @@ const startWorker = async () => {
   }
 };
 
-startWorker();
+if (require.main === module) {
+  startWorker();
+}
+
+module.exports = {
+  processJob,
+  startWorker,
+  finalizeCampaignIfComplete,
+};
