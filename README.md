@@ -109,6 +109,21 @@ Admin API routes require authentication and verify that the authenticated accoun
 
 ---
 
+## API Documentation
+
+Start the backend with `cd backend` and `npm run dev`. Swagger UI is available at
+`http://localhost:5000/api-docs` (or your configured backend `PORT`). The OpenAPI
+document is available at `http://localhost:5000/api-docs.json`.
+
+Use `POST /api/auth/login` in Swagger, copy the returned `token`, and paste the
+token into **Authorize** without the `Bearer` prefix. Protected endpoints use
+that token, and `/api/admin` endpoints require an admin account. **Try it out**
+executes real API requests; campaign delivery requires the separate email worker
+(`npm run worker`).
+
+The specification is maintained in `backend/src/config/openapi.js`. Update it
+when changing API routes, request bodies, or responses.
+
 ## Core Flow
 
 ```
