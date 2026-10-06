@@ -14,13 +14,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/user", userRoutes);
-app.use("/api/contacts", contactRoutes);
-app.use("/api/campaigns", campaignRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/auth", authRoutes);
+app.use("/user", userRoutes);
+app.use("/contacts", contactRoutes);
+app.use("/campaigns", campaignRoutes);
+app.use("/admin", adminRoutes);
 
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "MailQueue API is working fine",
