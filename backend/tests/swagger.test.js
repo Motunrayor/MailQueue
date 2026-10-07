@@ -8,11 +8,7 @@ test("OpenAPI documentation is public and describes authentication", async () =>
   assert.equal(response.status, 200);
   assert.equal(response.body.openapi, "3.0.3");
   assert.equal(response.body.components.securitySchemes.bearerAuth.scheme, "bearer");
-<<<<<<< HEAD
-  assert.deepEqual(response.body.paths["/api/auth/login"].post.security, []);
-=======
   assert.deepEqual(response.body.paths["/auth/login"].post.security, []);
->>>>>>> 4cbef4b (feat: add Swagger doc)
   assert.deepEqual(response.body.security, [{ bearerAuth: [] }]);
   assert.equal(response.body.servers[0].url, "/");
 });
