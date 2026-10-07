@@ -7,13 +7,15 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "node --test test/*.js",
-    "worker": "node src/workers/emailWorker.js"
+    "worker": "node src/workers/emailWorker.js",
+    "start:all": "concurrently \"npm start\" \"npm run worker\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "concurrently": "^10.0.5",
     "cors": "^2.8.6",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
