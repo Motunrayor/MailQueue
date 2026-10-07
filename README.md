@@ -46,9 +46,9 @@ Admin functionality is protected by role-based authorization. Only authenticated
 
 ### Admin API Endpoints
 
-* `GET /api/admin/stats` — Application, campaign, and job statistics
-* `GET /api/admin/users` — Registered users with search, filtering, and pagination
-* `GET /api/admin/campaigns` — Campaign information for administrative use
+* `GET /admin/stats` — Application, campaign, and job statistics
+* `GET /admin/users` — Registered users with search, filtering, and pagination
+* `GET /admin/campaigns` — Campaign information for administrative use
 
 ### Creating an Admin
 
@@ -115,9 +115,9 @@ Start the backend with `cd backend` and `npm run dev`. Swagger UI is available a
 `http://localhost:5000/api-docs` (or your configured backend `PORT`). The OpenAPI
 document is available at `http://localhost:5000/api-docs.json`.
 
-Use `POST /api/auth/login` in Swagger, copy the returned `token`, and paste the
+Use `POST /auth/login` in Swagger, copy the returned `token`, and paste the
 token into **Authorize** without the `Bearer` prefix. Protected endpoints use
-that token, and `/api/admin` endpoints require an admin account. **Try it out**
+that token, and `/admin` endpoints require an admin account. **Try it out**
 executes real API requests; campaign delivery requires the separate email worker
 (`npm run worker`).
 

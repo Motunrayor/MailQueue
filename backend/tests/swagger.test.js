@@ -8,7 +8,11 @@ test("OpenAPI documentation is public and describes authentication", async () =>
   assert.equal(response.status, 200);
   assert.equal(response.body.openapi, "3.0.3");
   assert.equal(response.body.components.securitySchemes.bearerAuth.scheme, "bearer");
+<<<<<<< HEAD
   assert.deepEqual(response.body.paths["/api/auth/login"].post.security, []);
+=======
+  assert.deepEqual(response.body.paths["/auth/login"].post.security, []);
+>>>>>>> 4cbef4b (feat: add Swagger doc)
   assert.deepEqual(response.body.security, [{ bearerAuth: [] }]);
   assert.equal(response.body.servers[0].url, "/");
 });
@@ -28,11 +32,11 @@ test("the specification covers every mounted API operation", async () => {
   const response = await request(app).get("/api-docs.json");
   assert.equal(response.status, 200);
   const mounts = {
-    "/api/auth": require("../src/routes/authRoutes"),
-    "/api/user": require("../src/routes/userRoutes"),
-    "/api/contacts": require("../src/routes/contactRoutes"),
-    "/api/campaigns": require("../src/routes/campaignRoutes"),
-    "/api/admin": require("../src/routes/adminRoutes"),
+    "/auth": require("../src/routes/authRoutes"),
+    "/user": require("../src/routes/userRoutes"),
+    "/contacts": require("../src/routes/contactRoutes"),
+    "/campaigns": require("../src/routes/campaignRoutes"),
+    "/admin": require("../src/routes/adminRoutes"),
   };
   for (const [prefix, router] of Object.entries(mounts)) {
     for (const layer of router.stack) {
@@ -43,5 +47,5 @@ test("the specification covers every mounted API operation", async () => {
       }
     }
   }
-  assert.ok(response.body.paths["/api/health"].get);
+  assert.ok(response.body.paths["/health"].get);
 });
