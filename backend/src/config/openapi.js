@@ -66,7 +66,7 @@ module.exports = {
   openapi: "3.0.3",
   info: {
     title: "MailQueue API", version: "1.0.0",
-    description: "Authentication, contacts, email campaigns, and administration. Log in via /api/auth/login, copy the returned token, and paste it into Authorize. Campaign sending queues background jobs; the email worker processes delivery separately.",
+    description: "Authentication, contacts, email campaigns, and administration. Log in via /auth/login, copy the returned token, and paste it into Authorize. Campaign sending queues background jobs; the email worker processes delivery separately.",
   },
   servers: [{ url: "/", description: "Current API server" }],
   tags: ["Health", "Auth", "User", "Contacts", "Campaigns", "Admin"].map((name) => ({ name })),
@@ -104,35 +104,35 @@ module.exports = {
     },
   },
   paths: {
-    "/api/health": { get: operation("Health", "Check API health", message, { public: true }) },
-    "/api/auth/register": { post: operation("Auth", "Register an account", auth, { public: true, code: 201, requestBody: body(ref("RegisterInput")), errors: [invalid] }) },
-    "/api/auth/login": { post: operation("Auth", "Log in and obtain a JWT", auth, {
+    "/health": { get: operation("Health", "Check API health", message, { public: true }) },
+    "/auth/register": { post: operation("Auth", "Register an account", auth, { public: true, code: 201, requestBody: body(ref("RegisterInput")), errors: [invalid] }) },
+    "/auth/login": { post: operation("Auth", "Log in and obtain a JWT", auth, {
       public: true, requestBody: body(object({ email, password: { type: "string", format: "password" } }, ["email", "password"])), errors: [[401, "Invalid email or password"]],
     }) },
-    "/api/auth/me": { get: operation("Auth", "Get the authenticated account", success("user", ref("User")), { errors: [[404, "User not found"]] }) },
-    "/api/auth/verify-email": { post: {
+    "/auth/me": { get: operation("Auth", "Get the authenticated account", success("user", ref("User")), { errors: [[404, "User not found"]] }) },
+    "/auth/verify-email": { post: {
       tags: ["Auth"], summary: "Check whether an email is already registered", security: [],
       description: "This route currently only runs duplicate-email middleware. Existing emails return 400; unused emails fall through to the 404 handler. It does not send a verification email.",
       requestBody: body(object({ email }, ["email"])),
       responses: { 400: error("Email already exists"), 404: error("Unused email falls through to the not-found handler"), 500: error("Server or database error") },
     } },
-    "/api/auth/forget-password": { post: operation("Auth", "Request a password reset code by email", message, {
+    "/auth/forget-password": { post: operation("Auth", "Request a password reset code by email", message, {
       public: true, requestBody: body(object({ email }, ["email"])), errors: [invalid],
       description: "Always returns the same success message for valid email input, whether an account exists or not. Reset codes expire after 10 minutes.",
     }) },
-    "/api/auth/change-password": { patch: operation("Auth", "Reset a password using the emailed code", message, {
+    "/auth/change-password": { patch: operation("Auth", "Reset a password using the emailed code", message, {
       public: true, errors: [[400, "Missing input, invalid or expired code, too many attempts, or passwords do not match"]],
       requestBody: body(object({ email, otp_code: { type: "string", pattern: "^[0-9]{6}$", example: "123456" }, newPassword: { type: "string", format: "password", minLength: 8 }, confirmPassword: { type: "string", format: "password" } }, ["email", "otp_code", "newPassword", "confirmPassword"])),
     }) },
-    "/api/user/me": {
+    "/user/me": {
       get: operation("User", "Get your profile", profile, { errors: [[404, "User not found"]] }),
       patch: operation("User", "Update your profile", profile, { requestBody: body(ref("ProfileInput")), errors: [invalid, [404, "User not found"]] }),
     },
-    "/api/contacts": {
+    "/contacts": {
       get: operation("Contacts", "List your contacts", success("contacts", array(ref("Contact")), true), { parameters: pagination(100) }),
       post: operation("Contacts", "Create a contact", success("contact", ref("Contact")), { code: 201, requestBody: body(contactInput), errors: [invalid, duplicateContact] }),
     },
-    "/api/contacts/{id}": {
+    "/contacts/{id}": {
       parameters: id,
       get: operation("Contacts", "Get a contact", success("contact", ref("Contact")), { errors: [invalid, missingContact] }),
       patch: operation("Contacts", "Update a contact", success("contact", ref("Contact")), {
@@ -140,11 +140,11 @@ module.exports = {
       }),
       delete: operation("Contacts", "Delete a contact", message, { errors: [invalid, missingContact] }),
     },
-    "/api/campaigns": {
+    "/campaigns": {
       get: operation("Campaigns", "List your campaigns", success("data", array(ref("Campaign")), true), { parameters: [...pagination(10), statusFilter], errors: [invalid] }),
       post: operation("Campaigns", "Create a draft campaign", success("data", ref("Campaign")), { code: 201, requestBody: body(object(campaignFields, Object.keys(campaignFields))), errors: [invalid] }),
     },
-    "/api/campaigns/{id}": {
+    "/campaigns/{id}": {
       parameters: id,
       get: operation("Campaigns", "Get a campaign with recipient details", success("data", ref("Campaign")), { errors: [missingCampaign] }),
       patch: operation("Campaigns", "Update a draft campaign", success("data", ref("Campaign")), {
@@ -153,23 +153,23 @@ module.exports = {
       }),
       delete: operation("Campaigns", "Delete a draft campaign", message, { errors: [[400, "Only draft campaigns can be deleted"], missingCampaign] }),
     },
-    "/api/campaigns/{id}/send": {
+    "/campaigns/{id}/send": {
       parameters: id,
       post: operation("Campaigns", "Queue a draft campaign for delivery", success("data", object({ campaignId: objectId, status: { type: "string", enum: ["queued"] }, queuedJobs: { type: "integer" } })), {
         description: "Creates one background job and notification per recipient. Only draft campaigns with valid contacts can be queued. Run the email worker to process delivery.",
         errors: [invalid, missingCampaign],
       }),
     },
-    "/api/campaigns/{id}/notifications": {
+    "/campaigns/{id}/notifications": {
       parameters: id,
       get: operation("Campaigns", "Get campaign delivery notifications", success("data", array(ref("Notification"))), { errors: [missingCampaign] }),
     },
-    "/api/admin/users": { get: operation("Admin", "List registered users", success("data", array(ref("User")), true), {
+    "/admin/users": { get: operation("Admin", "List registered users", success("data", array(ref("User")), true), {
       ...adminOptions, parameters: [...pagination(10), { in: "query", name: "role", schema: { type: "string", enum: ["user", "admin"] } }],
     }) },
-    "/api/admin/campaigns": { get: operation("Admin", "List campaigns across all users", success("data", array(ref("Campaign")), true), {
+    "/admin/campaigns": { get: operation("Admin", "List campaigns across all users", success("data", array(ref("Campaign")), true), {
       ...adminOptions, parameters: [...pagination(10), statusFilter], errors: [...adminOptions.errors, invalid],
     }) },
-    "/api/admin/stats": { get: operation("Admin", "Get application and queue statistics", success("data", ref("AdminStats")), adminOptions) },
+    "/admin/stats": { get: operation("Admin", "Get application and queue statistics", success("data", ref("AdminStats")), adminOptions) },
   },
 };
