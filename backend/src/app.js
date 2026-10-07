@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
+const openapi = require("./config/openapi");
 require("dotenv").config();
 
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
@@ -13,6 +15,12 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.get("/api-docs.json", (req, res) => res.json(openapi));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(null, {
+  customSiteTitle: "MailQueue API Documentation",
+  swaggerOptions: { url: "/api-docs.json", validatorUrl: null },
+}));
 
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
