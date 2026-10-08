@@ -1,6 +1,3 @@
-import dns from "dns";
-dns.setDefaultResultOrder("ipv4first");
-
 const path = require("path");
 require("dotenv").config({
   path: path.resolve(__dirname, "../../.env"),
