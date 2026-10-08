@@ -1,5 +1,9 @@
 import dns from "dns";
+import dotenv from "dotenv";
+
 dns.setDefaultResultOrder("ipv4first");
+
+dotenv.config();
 
 const fs = require("fs");
 const path = require("path");
