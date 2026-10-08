@@ -1,3 +1,6 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
+
 const fs = require("fs");
 const path = require("path");
 const nodemailer = require("nodemailer");
