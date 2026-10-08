@@ -2,6 +2,7 @@
   "name": "mailqueue-backend",
   "version": "1.0.0",
   "description": "Backend service for MailQueue",
+  "type": "commonjs",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

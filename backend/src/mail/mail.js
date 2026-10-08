@@ -1,13 +1,12 @@
-import dns from "dns";
-import dotenv from "dotenv";
+const dns = require("dns");
+const dotenv = require("dotenv");
+const fs = require("fs");
+const path = require("path");
+const nodemailer = require("nodemailer");
 
 dns.setDefaultResultOrder("ipv4first");
 
 dotenv.config();
-
-const fs = require("fs");
-const path = require("path");
-const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
